@@ -52,7 +52,7 @@ class AsyncChatOpenAI:
             self.messages.append(0, {"role": "user", "content": self.context})
     
     async def chat(
-        self, prompt: str =  "请使用中文回答以下问题：", print_llm_output: bool = True
+        self, prompt: str =  "", print_llm_output: bool = True
         ) -> ChatOpenAIChatResponse:
         try:
             return await self._chat(prompt, print_llm_output)
@@ -148,8 +148,10 @@ class AsyncChatOpenAI:
 async def test():
     print(DEFAULT_MODEL_NAME)
     chat = AsyncChatOpenAI(model=DEFAULT_MODEL_NAME)
-    response = await chat.chat("你可以使用function calling来调用外部工具吗？")
+    query = input("请输入您的问题：")
+    response = await chat.chat(query)
     rprint(Markdown(response.content))
+    # rprint(response.tool_calls)
 if __name__ == "__main__":
     asyncio.run(test())
         
