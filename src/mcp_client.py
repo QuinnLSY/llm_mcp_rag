@@ -2,17 +2,18 @@ import asyncio
 from typing import Optional
 from contextlib import AsyncExitStack
 
-from mcp import ClientSession, StdioServerParameters
+from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
 
 from rich import print as rprint
 
 from dotenv import load_dotenv
 from pathlib import Path
+from mcp_tool import PresetMcpTools
 from utils.pretty import RICH_CONSOLE
 
 load_dotenv()  # load environment variables from .env
-PROJECT_ROOT_DIR = Path(__file__).parent.parent.parent
+PROJECT_ROOT_DIR = Path(__file__).parent.parent
 
 class MCPClient:
     def __init__(self, name: str, command: str, args: list[str], version: str = "0.0.1") -> None:
@@ -41,7 +42,7 @@ class MCPClient:
         """Get the list of available tools"""
         return self.tools
 
-    async def call_tools(self, name: str, params:dict[str, Any]):
+    async def call_tool(self, name: str, params:dict[str, any]):
         return await self.session.call_tool(name, params)
 
     async def _connect_to_server(self):
@@ -65,3 +66,18 @@ class MCPClient:
         response = await self.session.list_tools()
         self.tools = response.tools
         print("\nConnected to server with tools:", [tool.name for tool in self.tools])
+
+async def test():
+    for mcp_tool in [
+        PresetMcpTools.filesystem.append_mcp_params(f"{PROJECT_ROOT_DIR!s}"),
+        PresetMcpTools.fetch
+    ]:
+        rprint(mcp_tool.shell_cmd)
+        mcp_client = MCPClient(**mcp_tool.to_common_params())
+        await mcp_client.connect()
+        tools = mcp_client.get_tools()
+        rprint(tools)
+        await mcp_client.cleanup()
+
+if __name__ == "__main__":
+    asyncio.run(test())

@@ -23,18 +23,18 @@ class ToolCallFunction(BaseModel):
     arguments: str = ""
 
 class ToolCall(BaseModel):
-    id: str
+    id: str = ""
     function: ToolCallFunction = ToolCallFunction()
 
 class ChatOpenAIChatResponse(BaseModel):
-    content: str
+    content: str = ""
     tool_calls: list[ToolCall] = []
 
 @dataclass
 class AsyncChatOpenAI:
-    model: str
+    model: str = ""
     messages: list[ChatCompletionMessageParam] = field(default_factory=list)
-    tooles: list[Tool] = field(default_factory=list)
+    tools: list[Tool] = field(default_factory=list)
 
     system_prompt: str = ""
     context: str = ""
@@ -133,7 +133,7 @@ class AsyncChatOpenAI:
                     parameters=tool.inputSchema,
                 ),
             )
-            for tool in self.tooles
+            for tool in self.tools
         ]
     
     def append_tool_result(self, tool_call_id: str, tool_result: str) -> None:
